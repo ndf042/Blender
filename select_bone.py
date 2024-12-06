@@ -210,7 +210,7 @@ class Select_OT_Route_Bone(bpy.types.Operator):
                 select_children(first_obj, self.count)
         
         else:
-            self.report({"WARNING"}, "ボーンが選択されていません")
+            self.report({"ERROR"}, "ボーンが選択されていません")
             return{"CANCELLED"}
 
         return {"FINISHED"}
@@ -276,7 +276,7 @@ class Select_OT_Route_Children(bpy.types.Operator):
                 select_children(first_obj, self.count)
         
         else:
-            self.report({"WARNING"}, "ボーンが選択されていません")
+            self.report({"ERROR"}, "ボーンが選択されていません")
             return{"CANCELLED"}
 
         return {"FINISHED"}
@@ -340,7 +340,7 @@ class Select_OT_Route_Parent(bpy.types.Operator):
                 select_parent(first_obj, self.count)
 
         else:
-            self.report({"WARNING"}, "ボーンが選択されていません")
+            self.report({"ERROR"}, "ボーンが選択されていません")
             return{"CANCELLED"}
 
         return {"FINISHED"}
@@ -407,6 +407,13 @@ def menu_func(self, context):
         self.layout.operator(c.bl_idname)
 
 
+addon_shortcut = {
+    Select_OT_Full_Bone:"U",
+    Select_OT_Island_Bone:"Y",
+    Select_OT_Route_Bone:"T",
+    Select_OT_Route_Children:"R",
+    Select_OT_Route_Parent:"E"
+}
 addon_keymaps = []
 
 
@@ -414,28 +421,33 @@ addon_keymaps = []
 def register_shortcut():
     wm = bpy.context.window_manager
     kc = wm.keyconfigs.addon
+    kmi_list = []
     if kc:
         km = kc.keymaps.new(
             name = "3D View",
             space_type = "VIEW_3D"
             )
-        kmi = km.keymap_items.new(
-            idname=Select_OT_Island_Bone.bl_idname,
-            type="T",
-            value="PRESS",
-            shift=False,
-            ctrl=True,
-            alt=True
+        for key, value in addon_shortcut.items():
+            kmi = km.keymap_items.new(
+                idname=key.bl_idname,
+                type=value,
+                value="PRESS",
+                shift=False,
+                ctrl=True,
+                alt=True
 
-        )
+            )
 
-        addon_keymaps.append((km, kmi))
+            kmi_list.append(kmi)
+        
+        for k in kmi_list:
+            addon_keymaps.append((km, k))
 
         
 #ショートカットキーの削除
 def unregister_shortcut():
-    for km, kmi in addon_keymaps:
-        km.keymap_items.remove(kmi)
+    for km, kmi_list in addon_keymaps:
+        km.keymap_items.remove(kmi_list)
     
     addon_keymaps.clear()
 
